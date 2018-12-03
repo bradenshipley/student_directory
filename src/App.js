@@ -18,16 +18,19 @@ class App extends Component {
     this.handleAdd = this.handleAdd.bind(this)
   }
   handleNext() {
+    //check the count against the length of the array, and kick back an alert if the count is already maxed out
     this.state.count < this.state.students.length - 1
       ? this.setState({ count: this.state.count + 1 })
       : alert("This is the final entry")
   }
   handlePrevious() {
+    //check count against itself and alert if count cant go any lower
     this.state.count >= 1
       ? this.setState({ count: this.state.count - 1 })
       : alert("This is the first entry")
   }
   handleDelete() {
+    //create an arr copy and splice the current index off, setState to new arr
     let arr = [...this.state.students]
     arr.splice(this.state.count, 1)
     this.state.students.length > 1
@@ -37,6 +40,7 @@ class App extends Component {
       : alert("This is the only student")
   }
   handleAdd(val) {
+    //add empty object to the students arr
     this.setState({
       students: [...this.state.students, val]
     })
@@ -45,6 +49,7 @@ class App extends Component {
     return (
       <div className="App">
         <div className="header">
+          {/* navigate to the first index in the students arr by changing state back to 0*/}
           <button className="home" onClick={e => this.setState({ count: 0 })}>
             {" "}
             Home{" "}

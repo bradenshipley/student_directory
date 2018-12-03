@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-
+//checking to see if the value of the prop is !null and if it is, giving "no answer" as the value.
 const QuestionAndAnswer = props => (
   <span className="questionAndAnswer">
     <span className="cityOrCountry">
