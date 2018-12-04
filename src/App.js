@@ -1,21 +1,30 @@
 import React, { Component } from "react"
-import students from "./Students.js"
+// import students from "./Students.js"
 import "./App.css"
 import QuestionAndAnswer from "./Components/QuestionAndAnswer"
-
+import axios from "axios"
 import Introduction from "./Components/Introduction"
 
 class App extends Component {
   constructor() {
     super()
     this.state = {
-      students: students,
-      count: 0
+      students: {},
+      count: 0,
+      edit: "false"
     }
     this.handleNext = this.handleNext.bind(this)
     this.handlePrevious = this.handlePrevious.bind(this)
     this.handleDelete = this.handleDelete.bind(this)
     this.handleAdd = this.handleAdd.bind(this)
+  }
+  componentDidMount() {
+    //setting initial values of students based on API given
+    axios.get("https://dm20.now.sh/students").then(response => {
+      this.setState({
+        students: response.data
+      })
+    })
   }
   handleNext() {
     //check the count against the length of the array, and kick back an alert if the count is already maxed out
@@ -30,19 +39,22 @@ class App extends Component {
       : alert("This is the first entry")
   }
   handleDelete() {
-    //create an arr copy and splice the current index off, setState to new arr
-    let arr = [...this.state.students]
-    arr.splice(this.state.count, 1)
-    this.state.students.length > 1
-      ? this.setState({
-          students: arr
+    //using an axios delete request to remove the current index in the API
+    axios
+      .delete(`https://dm20.now.sh/students/${this.state.selected}`)
+      .then(response => {
+        this.setState({
+          students: response.data,
+          selected: this.state.selected - 1
         })
-      : alert("This is the only student")
+      })
   }
   handleAdd(val) {
     //add empty object to the students arr
     this.setState({
-      students: [...this.state.students, val]
+      students: [...this.state.students, val],
+      //set current page to the newest entry
+      count: this.state.students.length
     })
   }
   render() {
@@ -57,37 +69,54 @@ class App extends Component {
           <button className="directory">Directory</button>
         </div>
         <br />
-        <div className="main">
-          <span className="pageCounter">
-            {this.state.count + 1} of {this.state.students.length}
-          </span>
+        {this.state.students.length > 0 ? (
+          <div className="main">
+            {this.state.students.length > 0 ? (
+              <span className="pageCounter">
+                {this.state.count + 1} of {this.state.students.length}
+              </span>
+            ) : (
+              "No students yet"
+            )}
+            {this.state.students.length ? (
+              <span className="student-name">
+                <strong>Name: </strong>{" "}
+                {this.state.students[this.state.count].name}
+              </span>
+            ) : (
+              "No students yet"
+            )}
+            <br />
 
-          <span className="student-name">
-            <strong>Name: </strong> {this.state.students[this.state.count].name}
-          </span>
-          <br />
-          <Introduction
-            from={this.state.students[this.state.count].from}
-            funFact={this.state.students[this.state.count].funFact}
-          />
+            <Introduction
+              from={this.state.students[this.state.count].from}
+              funFact={this.state.students[this.state.count].funFact}
+            />
 
-          <br />
-          <strong>Would you rather...</strong>
-          <br />
-          <QuestionAndAnswer
-            cityOrCountry={this.state.students[this.state.count].cityOrCountry}
-            indoorsOrOutdoors={
-              this.state.students[this.state.count].indoorsOrOutdoors
-            }
-            travel={this.state.students[this.state.count].travel}
-            food={this.state.students[this.state.count].food}
-            dogOrCat={this.state.students[this.state.count].dogOrCat}
-          />
-        </div>
+            <br />
+            <strong>Would you rather...</strong>
+            <br />
+
+            <QuestionAndAnswer
+              cityOrCountry={
+                this.state.students[this.state.count].cityOrCountry
+              }
+              indoorsOrOutdoors={
+                this.state.students[this.state.count].indoorsOrOutdoors
+              }
+              travel={this.state.students[this.state.count].travel}
+              food={this.state.students[this.state.count].food}
+              dogOrCat={this.state.students[this.state.count].dogOrCat}
+            />
+          </div>
+        ) : (
+          <div className="appLoading"></div>
+        )}
         <div className="buttons">
           <button className="previous" onClick={this.handlePrevious}>
             Previous
           </button>
+          <button className="edit">Edit </button>
           <button className="delete" onClick={this.handleDelete}>
             Delete
           </button>
